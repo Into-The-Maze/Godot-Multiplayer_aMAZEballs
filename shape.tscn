@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://f1kp6hwdbk7o"]
+[gd_scene load_steps=6 format=3 uid="uid://f1kp6hwdbk7o"]
 
 [ext_resource type="Script" path="res://shape.gd" id="1_mkpat"]
 
@@ -6,7 +6,12 @@
 height = 0.5
 radius = 1.0
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x7ge5"]
+metallic_specular = 1.0
+roughness = 0.0
+
 [sub_resource type="TorusMesh" id="TorusMesh_hjnji"]
+material = SubResource("StandardMaterial3D_x7ge5")
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_fg87x"]
 properties/0/path = NodePath(".:position")
@@ -29,6 +34,7 @@ shape = SubResource("CylinderShape3D_wgnp7")
 mesh = SubResource("TorusMesh_hjnji")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
+shadow_enabled = true
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_fg87x")

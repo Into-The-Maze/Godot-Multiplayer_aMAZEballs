@@ -4,6 +4,8 @@ extends Node
 const PORT = 135
 var peer = ENetMultiplayerPeer.new()
 
+var shape_id_counter = 0
+
 @export var p: PackedScene  # Player scene
 @export var s: PackedScene  # Shape scene
 
@@ -25,20 +27,29 @@ func _spawn_shape() -> void:
 	var shape = s.instantiate()
 	shape.position = Vector3(0, 10, 0)
 	add_child(shape)
-	# Now tell all connected peers (including this one)
-	# to create a matching shape.
-	rpc("spawn_shape_remote", shape.position)
+
+	# Assign a unique ID to each shape.
+	shape_id_counter += 1
+	var shape_id = shape_id_counter
+
+	# Now tell all clients to create a matching shape.
+	rpc("spawn_shape_remote", shape.position, shape_id)
 
 @rpc("call_remote")  # This runs on every peer.
-func spawn_shape_remote(pos: Vector3) -> void:
+func spawn_shape_remote(pos: Vector3, shape_id: int) -> void:
 	# On the server we already spawned it, so only let clients do so.
 	if multiplayer.is_server():
 		return
+
+	# Avoid spawning the same shape multiple times by tracking IDs.
+	if has_node(str(shape_id)):
+		return  # Shape with this ID already exists.
+
 	var shape = s.instantiate()
 	shape.position = pos
+	shape.name = str(shape_id)  # Store the ID to prevent duplicates
 	add_child(shape)
-
-
+	
 func _on_join_pressed() -> void:
 	peer.create_client("localhost", PORT)
 	multiplayer.multiplayer_peer = peer
